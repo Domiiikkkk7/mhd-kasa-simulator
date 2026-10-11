@@ -3,8 +3,7 @@ import {
   calculateFinalPrice,
   fareCatalog,
   formatPrice,
-  lineRoute,
-  stopSequence,
+  lineRoutes,
   tariffRows,
   TARIFF_GROUPS,
 } from './data';
@@ -36,12 +35,18 @@ const distanceLabels = {
 const fareOrder = ['standard', 'reduced', 'night', 'supplement', 'luggage'];
 
 export default function App() {
+  const [selectedLine, setSelectedLine] = useState('98');
+  const [selectedDirection, setSelectedDirection] = useState('A');
   const [fareMode, setFareMode] = useState('standard');
   const [zone, setZone] = useState('I');
   const [distance, setDistance] = useState('short');
   const [payment, setPayment] = useState('cash');
   const [passengerType, setPassengerType] = useState('adult');
   const [stopIndex, setStopIndex] = useState(0);
+
+  const lineRoute = lineRoutes[selectedLine];
+  const directionData = lineRoute.directions[selectedDirection];
+  const currentStop = directionData.stops[stopIndex % directionData.stops.length];
 
   const baseFare = useMemo(() => {
     const value = fareCatalog[fareMode]?.[distance]?.[zone]?.[payment];
@@ -51,8 +56,6 @@ export default function App() {
   const finalFare = useMemo(() => {
     return baseFare === null ? null : calculateFinalPrice(baseFare, passengerType);
   }, [baseFare, passengerType]);
-
-  const currentStop = stopSequence[stopIndex % stopSequence.length];
 
   const priceSummary = useMemo(() => {
     const modeLabel = fareLabels[fareMode] || 'Jízdné';
@@ -73,6 +76,7 @@ export default function App() {
     setDistance('short');
     setPayment('cash');
     setPassengerType('adult');
+    setStopIndex(0);
   };
 
   const travelerLabel = TARIFF_GROUPS[passengerType]?.label || 'Dospělý';
@@ -82,14 +86,52 @@ export default function App() {
       <div className="panel panel-main">
         <header className="header-block">
           <div>
-            <p className="eyebrow">MHD tarifní simulátor</p>
-            <h1>Kasa + palubní hlášení</h1>
+            <p className="eyebrow">MHD tarifní terminál</p>
+            <h1>Kasa + Palubní systém</h1>
           </div>
         </header>
 
+        <div className="line-selector">
+          <label>Vyber linku</label>
+          <div className="line-buttons">
+            {Object.keys(lineRoutes).map((lineNum) => (
+              <button
+                key={lineNum}
+                className={selectedLine === lineNum ? 'line-btn active' : 'line-btn'}
+                onClick={() => {
+                  setSelectedLine(lineNum);
+                  setSelectedDirection(Object.keys(lineRoutes[lineNum].directions)[0]);
+                  setStopIndex(0);
+                }}
+              >
+                {lineNum}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="direction-selector">
+          <label>Směr</label>
+          <div className="direction-buttons">
+            {Object.entries(lineRoute.directions).map(([dir, data]) => (
+              <button
+                key={dir}
+                className={selectedDirection === dir ? 'dir-btn active' : 'dir-btn'}
+                onClick={() => {
+                  setSelectedDirection(dir);
+                  setStopIndex(0);
+                }}
+              >
+                <span className="dir-label">{dir}</span>
+                <span className="dir-dest">{data.destination}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="route-banner">
-          <div className="route-pill">{lineRoute.label}</div>
-          <div className="route-meta">{lineRoute.direction}</div>
+          <div className="route-pill">Linka {lineRoute.number}</div>
+          <div className="route-meta">{directionData.destination}</div>
         </div>
 
         <div className="settings-grid">
@@ -201,20 +243,22 @@ export default function App() {
         <div className="route-head">
           <div className="line-badge">{lineRoute.number}</div>
           <div>
-            <div className="route-title">{lineRoute.label}</div>
-            <div className="route-subtitle">{lineRoute.direction}</div>
+            <div className="route-title">Linka {lineRoute.number}</div>
+            <div className="route-subtitle">Směr {selectedDirection}: {directionData.destination}</div>
           </div>
         </div>
 
         <div className="announcement-box">
           <div className="announcement-label">Palubní hlášení</div>
           <div className="announcement-line">
-            Příští zastávka je: <strong>{currentStop.stop}</strong>.
+            Příští zastávka je: <strong>{currentStop}</strong>.
           </div>
           <div className="announcement-line">
-            Dále pokračuje směr <strong>{currentStop.direction}</strong>.
+            Směr: <strong>{directionData.destination}</strong>
           </div>
-          <div className="announcement-line">{currentStop.note}</div>
+          <div className="announcement-line">
+            {stopIndex === 0 ? 'Odjezd z vozovny.' : 'Prosíme, držte se a buďte opatrní.'}
+          </div>
         </div>
 
         <div className="actions">
@@ -230,17 +274,21 @@ export default function App() {
         </div>
 
         <div className="stop-list-box">
-          <div className="stop-list-title">Trasa</div>
-          <ul>
-            {lineRoute.stops.map((stop, index) => (
-              <li key={`${stop}-${index}`} className={index === stopIndex % lineRoute.stops.length ? 'active-stop' : ''}>
-                {stop}
+          <div className="stop-list-title">Trasa ({directionData.stops.length} zastávek)</div>
+          <ul className="stop-list-scrollable">
+            {directionData.stops.map((stop, index) => (
+              <li 
+                key={`${stop}-${index}`} 
+                className={index === stopIndex % directionData.stops.length ? 'active-stop' : ''}
+              >
+                <span className="stop-index">{index + 1}</span>
+                <span className="stop-name">{stop}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="stop-chip">Nástup: {stopIndex + 1} / {lineRoute.stops.length}</div>
+        <div className="stop-chip">Stanice: {stopIndex + 1} / {directionData.stops.length}</div>
       </aside>
     </div>
   );
