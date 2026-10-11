@@ -90,14 +90,63 @@ export const tariffRows = [
   { label: 'Dovozné - spoluzavazadla a psi bez schránky - zóna I+II', zoneI: 13, zoneII: 21, max: 40, category: 'luggage' },
 ];
 
-export const stopSequence = [
-  { stop: 'Vltavská', direction: 'Nádraží', note: 'Vystupování a nástup na levé straně.' },
-  { stop: 'Moravská', direction: 'Nádraží', note: 'Přední dveře pro nástup, zadní pro výstup.' },
-  { stop: 'Jiráskovo náměstí', direction: 'Nádraží', note: 'Děkujeme za jízdu, příští zastávka je terminál.' },
-  { stop: 'Hlavní nádraží', direction: 'Přístav', note: 'Konec trasy. Vystupování v celé délce vozu.' },
-  { stop: 'Přístav', direction: 'Přístav', note: 'Konec smyčky, nástup není možný ve směru zpět.' },
-  { stop: 'Uhelný sklad', direction: 'Vltavská', note: 'Příští zastávka je Vltavská.' },
-];
+export const lineRoute = {
+  number: '99',
+  label: 'Linka 99',
+  direction: 'Dukla – Krajský úřad / návrat na Duklu',
+  stops: [
+    'Dukla, vozovna',
+    'Hlavní nádraží (st. 2)',
+    'U Marka',
+    'Palackého',
+    'Masarykovo nám. (st. 3)',
+    'Náměstí Republiky (st. 1)',
+    'Krajský úřad',
+    'Sakařova',
+    'Holubova',
+    'Bezdíčkova',
+    'Židov',
+    'Dubina, garáže',
+    'Dubina, centrum',
+    'Dubina, sever',
+    'Dubina, Dubinská',
+    'Dubina, penzion',
+    'Dubina, točna',
+    'Blahoutova',
+    'Na Drážce',
+    'Slovany, Dašická',
+    'Slovany, Spojilská',
+    'Slovany, U Přejezdu',
+    'Slovany, točna',
+    'Černá za Bory, odb. žel. zast.',
+    'Holandská',
+    'Černá za Bory, prodejna',
+    'Černá za Bory',
+    'Holandská',
+    'Černá za Bory, pošta',
+    'Černá za Bory, silo',
+    'Zámeček',
+    'Průmyslová',
+    'Pardubičky, točna',
+    'Kyjevská',
+    'Nemocnice',
+    'Štrossova',
+    'U Kostelíčka',
+    'Krajský úřad',
+    'Náměstí Republiky (st. 2)',
+    'Masarykovo nám.',
+    'Palackého',
+    'U Marka',
+    'Hlavní nádraží',
+    'Dukla, vozovna',
+  ],
+};
+
+export const stopSequence = lineRoute.stops.map((stop, index) => ({
+  stop,
+  direction: index < lineRoute.stops.length / 2 ? 'Dukla → Krajský úřad' : 'Krajský úřad → Dukla',
+  note: index === 0 ? 'Odjezd z vozovny.' : 'Příští zastávka dle jízdního řádu.',
+}));
 
 export function calculateFinalPrice(basePrice, passengerGroup) {
   if (basePrice === null || basePrice === undefined) return null;
