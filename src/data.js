@@ -1,184 +1,114 @@
-import { useMemo, useState } from 'react';
-import { fareCatalog, tariffRows, stopSequence } from './data';
-
-const fareLabels = {
-  standard: 'Základní jízdné',
-  reduced: 'Zlevněné jízdné',
-  night: 'Jízdné pro noční linky',
-  supplement: 'Příplatek k časové jízdence',
-  luggage: 'Dovozné',
+// Tarifní data podle skupin cestujících a typu jízdného
+export const TARIFF_GROUPS = {
+  adult: {
+    label: 'Dospělý',
+    multiplier: 1.0,
+    description: 'Plné jízdné',
+  },
+  student: {
+    label: 'Student / dítě (6-15 let)',
+    multiplier: 0.75,
+    description: 'Zlevněné jízdné',
+  },
+  senior: {
+    label: 'Senior / ZTP (65+)',
+    multiplier: 0.65,
+    description: 'Zvýhodněné jízdné',
+  },
+  child: {
+    label: 'Malé dítě (do 6 let)',
+    multiplier: 0.0,
+    description: 'Bez jízdného (volně)',
+  },
 };
 
-const paymentLabels = {
-  cash: 'hotovost',
-  card: 'karta',
-  electronic: 'MHD / elektronická',
+export const fareCatalog = {
+  standard: {
+    short: {
+      I: { cash: 11, card: 25, electronic: 50 },
+      'I+II': { cash: 13, card: 28, electronic: 50 },
+    },
+    long: {
+      I: { cash: 18, card: 25, electronic: 50 },
+      'I+II': { cash: 22, card: 28, electronic: 50 },
+    },
+  },
+  reduced: {
+    short: {
+      I: { cash: 9, card: 18, electronic: 40 },
+      'I+II': { cash: 11, card: 21, electronic: 40 },
+    },
+    long: {
+      I: { cash: 13, card: 18, electronic: 40 },
+      'I+II': { cash: 16, card: 21, electronic: 40 },
+    },
+  },
+  night: {
+    short: {
+      I: { cash: 28, card: null, electronic: 40 },
+      'I+II': { cash: 28, card: null, electronic: 40 },
+    },
+    long: {
+      I: { cash: 28, card: null, electronic: 40 },
+      'I+II': { cash: 28, card: null, electronic: 40 },
+    },
+  },
+  supplement: {
+    short: {
+      I: { cash: 8, card: null, electronic: 10 },
+      'I+II': { cash: 8, card: null, electronic: 10 },
+    },
+    long: {
+      I: { cash: 8, card: null, electronic: 10 },
+      'I+II': { cash: 8, card: null, electronic: 10 },
+    },
+  },
+  luggage: {
+    short: {
+      I: { cash: 10, card: 18, electronic: 40 },
+      'I+II': { cash: 13, card: 21, electronic: 40 },
+    },
+    long: {
+      I: { cash: 10, card: 18, electronic: 40 },
+      'I+II': { cash: 13, card: 21, electronic: 40 },
+    },
+  },
 };
 
-const zoneLabels = {
-  I: 'zóna I',
-  'I+II': 'zóna I + II',
-};
+export const tariffRows = [
+  { label: 'Základní jízdné nad 3 zastávkové úseky - zóna I', zoneI: 18, zoneII: 25, max: 50, category: 'standard' },
+  { label: 'Základní jízdné nad 3 zastávkové úseky - zóna I + II', zoneI: 22, zoneII: 28, max: 50, category: 'standard' },
+  { label: 'Základní jízdné do 3 zastávkových úseků - zóna I', zoneI: 11, zoneII: 25, max: 50, category: 'standard' },
+  { label: 'Základní jízdné do 3 zastávkových úseků - zóna I + II', zoneI: 13, zoneII: 28, max: 50, category: 'standard' },
+  { label: 'Zlevněné jízdné nad 3 zastávkové úseky - zóna I', zoneI: 13, zoneII: 18, max: 40, category: 'reduced' },
+  { label: 'Zlevněné jízdné nad 3 zastávkové úseky - zóna I + II', zoneI: 16, zoneII: 21, max: 40, category: 'reduced' },
+  { label: 'Zlevněné jízdné do 3 zastávkových úseků - zóna I', zoneI: 9, zoneII: 18, max: 40, category: 'reduced' },
+  { label: 'Zlevněné jízdné do 3 zastávkových úseků - zóna I + II', zoneI: 11, zoneII: 21, max: 40, category: 'reduced' },
+  { label: 'Jízdné pro noční linky', zoneI: 28, zoneII: null, max: 40, category: 'night' },
+  { label: 'Příplatek k časové jízdence za jízdu z/do II. zóny', zoneI: 8, zoneII: null, max: 10, category: 'supplement' },
+  { label: 'Dovozné - spoluzavazadla a psi bez schránky - zóna I', zoneI: 10, zoneII: 18, max: 40, category: 'luggage' },
+  { label: 'Dovozné - spoluzavazadla a psi bez schránky - zóna I+II', zoneI: 13, zoneII: 21, max: 40, category: 'luggage' },
+];
 
-const distanceLabels = {
-  short: 'do 3 zastávkových úseků',
-  long: 'nad 3 zastávkové úseky',
-};
+export const stopSequence = [
+  { stop: 'Vltavská', direction: 'Nádraží', note: 'Vystupování a nástup na levé straně.' },
+  { stop: 'Moravská', direction: 'Nádraží', note: 'Přední dveře pro nástup, zadní pro výstup.' },
+  { stop: 'Jiráskovo náměstí', direction: 'Nádraží', note: 'Děkujeme za jízdu, příští zastávka je terminál.' },
+  { stop: 'Hlavní nádraží', direction: 'Přístav', note: 'Konec trasy. Vystupování v celé délce vozu.' },
+  { stop: 'Přístav', direction: 'Přístav', note: 'Konec smyčky, nástup není možný ve směru zpět.' },
+  { stop: 'Uhelný sklad', direction: 'Vltavská', note: 'Příští zastávka je Vltavská.' },
+];
 
-function formatPrice(value) {
-  return value === null || value === undefined ? '–' : `${value} Kč`;
+export function calculateFinalPrice(basePrice, passengerGroup) {
+  if (basePrice === null || basePrice === undefined) return null;
+  if (passengerGroup === 'child') return 0;
+
+  const multiplier = TARIFF_GROUPS[passengerGroup]?.multiplier || 1.0;
+  const finalPrice = Math.round(basePrice * multiplier);
+
+  return finalPrice < 5 ? 0 : finalPrice;
 }
 
-export default function App() {
-  const [fareMode, setFareMode] = useState('standard');
-  const [zone, setZone] = useState('I');
-  const [distance, setDistance] = useState('short');
-  const [payment, setPayment] = useState('cash');
-  const [passengerType, setPassengerType] = useState('adult');
-  const [stopIndex, setStopIndex] = useState(0);
-
-  const selectedFare = useMemo(() => {
-    const value = fareCatalog[fareMode]?.[distance]?.[zone]?.[payment];
-    return value ?? null;
-  }, [fareMode, distance, zone, payment]);
-
-  const currentStop = stopSequence[stopIndex % stopSequence.length];
-
-  const announcement = `Příští zastávka je: ${currentStop.stop}. Dále pokračuje směr ${currentStop.direction}. ${currentStop.note}`;
-
-  const priceSummary = useMemo(() => {
-    const modeLabel = fareLabels[fareMode] || 'Jízdné';
-    const zoneLabel = zoneLabels[zone] || 'zóna I';
-    const distanceLabel = distanceLabels[distance] || 'do 3 zastávkových úseků';
-
-    return `${modeLabel} • ${zoneLabel} • ${distanceLabel}`;
-  }, [fareMode, zone, distance]);
-
-  return (
-    <div className="page-shell">
-      <div className="panel">
-        <header className="header-block">
-          <div>
-            <p className="eyebrow">MHD tarifní simulátor</p>
-            <h1>Kalibrace kasy a palubního hlášení</h1>
-          </div>
-        </header>
-
-        <div className="settings-grid">
-          <div className="field">
-            <label>Typ jízdného</label>
-            <select value={fareMode} onChange={(e) => setFareMode(e.target.value)}>
-              {Object.entries(fareLabels).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="field">
-            <label>Zóna</label>
-            <select value={zone} onChange={(e) => setZone(e.target.value)}>
-              {Object.entries(zoneLabels).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="field">
-            <label>Délka cesty</label>
-            <select value={distance} onChange={(e) => setDistance(e.target.value)}>
-              {Object.entries(distanceLabels).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="field">
-            <label>Platba</label>
-            <select value={payment} onChange={(e) => setPayment(e.target.value)}>
-              {Object.entries(paymentLabels).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="toggle-group">
-          <label>Skupina cestujícího</label>
-          <div className="segmented">
-            {[
-              { key: 'adult', label: 'Dospělý' },
-              { key: 'student', label: 'Student / dítě' },
-              { key: 'senior', label: 'Senior / ZTP' },
-            ].map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                className={passengerType === item.key ? 'active' : ''}
-                onClick={() => setPassengerType(item.key)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="summary-box">
-          <p className="label">Výpočet</p>
-          <div className="summary-ticket">{priceSummary}</div>
-          <div className="price-box">{selectedFare === null ? '–' : `${selectedFare} Kč`}</div>
-          <div className="status-pill">
-            {selectedFare === null
-              ? 'Tento tarif není pro vybranou kombinaci dostupný.'
-              : `Vybráno: ${paymentLabels[payment]} • ${passengerType === 'adult' ? 'dospělý' : passengerType === 'student' ? 'student/dítě' : 'senior/ZTP'}`}
-          </div>
-        </div>
-
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Typ jízdného</th>
-                <th>zóna I</th>
-                <th>zóna I + II</th>
-                <th>Max. výše</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tariffRows.map((row) => (
-                <tr key={row.label}>
-                  <td>{row.label}</td>
-                  <td>{formatPrice(row.zoneI)}</td>
-                  <td>{formatPrice(row.zoneII)}</td>
-                  <td>{row.max ? `${row.max} Kč` : '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <aside className="panel panel-output">
-        <div className="route-head">
-          <div className="line-badge">A</div>
-          <div>
-            <div className="route-title">Linka 101</div>
-            <div className="route-subtitle">Směr: Nádraží / Vltavská</div>
-          </div>
-        </div>
-
-        <div className="announcement-box">{announcement}</div>
-
-        <div className="actions">
-          <button type="button" className="primary" onClick={() => setStopIndex((current) => current + 1)}>
-            Další zastávka
-          </button>
-          <button type="button" className="secondary" onClick={() => setStopIndex(0)}>
-            Reset
-          </button>
-        </div>
-
-        <div className="stop-chip">Nástup: {stopIndex + 1} / {stopSequence.length}</div>
-      </aside>
-    </div>
-  );
+export function formatPrice(value) {
+  return value === null || value === undefined ? '–' : `${value} Kč`;
 }
