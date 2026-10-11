@@ -1,0 +1,76 @@
+export const fareCatalog = {
+  standard: {
+    short: {
+      I: { cash: 11, card: 25, electronic: 50 },
+      'I+II': { cash: 13, card: 28, electronic: 50 },
+    },
+    long: {
+      I: { cash: 18, card: 25, electronic: 50 },
+      'I+II': { cash: 22, card: 28, electronic: 50 },
+    },
+  },
+  reduced: {
+    short: {
+      I: { cash: 9, card: 18, electronic: 40 },
+      'I+II': { cash: 11, card: 21, electronic: 40 },
+    },
+    long: {
+      I: { cash: 13, card: 18, electronic: 40 },
+      'I+II': { cash: 16, card: 21, electronic: 40 },
+    },
+  },
+  night: {
+    short: {
+      I: { cash: 28, card: null, electronic: 40 },
+      'I+II': { cash: 28, card: null, electronic: 40 },
+    },
+    long: {
+      I: { cash: 28, card: null, electronic: 40 },
+      'I+II': { cash: 28, card: null, electronic: 40 },
+    },
+  },
+  supplement: {
+    short: {
+      I: { cash: 8, card: null, electronic: 10 },
+      'I+II': { cash: 8, card: null, electronic: 10 },
+    },
+    long: {
+      I: { cash: 8, card: null, electronic: 10 },
+      'I+II': { cash: 8, card: null, electronic: 10 },
+    },
+  },
+  luggage: {
+    short: {
+      I: { cash: 10, card: 18, electronic: 40 },
+      'I+II': { cash: 13, card: 21, electronic: 40 },
+    },
+    long: {
+      I: { cash: 10, card: 18, electronic: 40 },
+      'I+II': { cash: 13, card: 21, electronic: 40 },
+    },
+  },
+};
+
+export const tariffRows = [
+  { label: 'Základní jízdné nad 3 zastávkové úseky - zóna I', zoneI: 18, zoneII: 25, max: 50 },
+  { label: 'Základní jízdné nad 3 zastávkové úseky - zóna I + II', zoneI: 22, zoneII: 28, max: 50 },
+  { label: 'Základní jízdné do 3 zastávkových úseků - zóna I', zoneI: 11, zoneII: 25, max: 50 },
+  { label: 'Základní jízdné do 3 zastávkových úseků - zóna I + II', zoneI: 13, zoneII: 28, max: 50 },
+  { label: 'Zlevněné jízdné nad 3 zastávkové úseky - zóna I', zoneI: 13, zoneII: 18, max: 40 },
+  { label: 'Zlevněné jízdné nad 3 zastávkové úseky - zóna I + II', zoneI: 16, zoneII: 21, max: 40 },
+  { label: 'Zlevněné jízdné do 3 zastávkových úseků - zóna I', zoneI: 9, zoneII: 18, max: 40 },
+  { label: 'Zlevněné jízdné do 3 zastávkových úseků - zóna I + II', zoneI: 11, zoneII: 21, max: 40 },
+  { label: 'Jízdné pro noční linky', zoneI: 28, zoneII: null, max: 40 },
+  { label: 'Příplatek k časové jízdence za jízdu z/do II. zóny', zoneI: 8, zoneII: null, max: 10 },
+  { label: 'Dovozné - spoluzavazadla a psi bez schránky - zóna I', zoneI: 10, zoneII: 18, max: 40 },
+  { label: 'Dovozné - spoluzavazadla a psi bez schránky - zóna I+II', zoneI: 13, zoneII: 21, max: 40 },
+];
+
+export const stopSequence = [
+  { stop: 'Vltavská', direction: 'Nádraží', note: 'Vystupování a nástup na levé straně.' },
+  { stop: 'Moravská', direction: 'Nádraží', note: 'Přední dveře pro nástup, zadní pro výstup.' },
+  { stop: 'Jiráskovo náměstí', direction: 'Nádraží', note: 'Děkujeme za jízdu, příští zastávka je terminál.' },
+  { stop: 'Hlavní nádraží', direction: 'Přístav', note: 'Konec trasy. Vystupování v celé délce vozu.' },
+  { stop: 'Přístav', direction: 'Přístav', note: 'Konec smyčky, nástup není možný ve směru zpět.' },
+  { stop: 'Uhelný sklad', direction: 'Vltavská', note: 'Příští zastávka je Vltavská.' },
+];
